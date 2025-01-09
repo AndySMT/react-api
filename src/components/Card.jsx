@@ -2,7 +2,7 @@ function Card({ title, author, status, imgUrl }) {
   const statusLabel = status ? "✔️ Pubblicato" : "❌ Non pubblicato";
 
   return (
-    <div className="rounded-lg bg-zinc-950 p-4">
+    <div className="rounded-lg bg-zinc-950 p-4" key={Card.id}>
       <img
         src={imgUrl}
         alt={title}

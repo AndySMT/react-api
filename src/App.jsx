@@ -10,13 +10,28 @@ const initialData = {
 };
 
 function App() {
+  const [posts, setPosts] = useState([]);
   const [formData, stateFormData] = useState({ initialData });
   const [cards, setCards] = useState([]);
+  useEffect(() => {
+    axios.get("http://127.0.0.1:3000/posts").then((res) => {
+      console.log(res.data);
+      setPosts(res.data);
+    });
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setCards([...cards, formData]);
-    stateFormData(initialData);
+    axios
+      .post("http://127.0.0.1:3000/posts", formData)
+      .then((res) => {
+        console.log("Articolo salvato:", res.data);
+        setCards([...cards, res.data]);
+        stateFormData(initialData);
+      })
+      .catch((error) => {
+        console.error("Errore nel salvataggio:", error);
+      });
   };
 
   const handleTitleChange = (e) => {
@@ -29,18 +44,25 @@ function App() {
     stateFormData({ ...formData, status: e.target.checked });
   };
 
-  const handleRemoveClick = (e) => {
+  /* const handleRemoveClick = (e) => {
     const cardId = e.target.closest("li").id;
     const nuoveCards = cards.filter((card, index) => index !== cardId);
-    setCards(nuoveCards);
+    setCards(nuoveCards); */
+  const deleteItem = (e, id) => {
+    e.preventDefault();
+    console.log(`Eliminazione card con ID: ${id}`);
+
+    axios
+      .delete(`http://127.0.0.1:3000/posts/${id}`)
+      .then((res) => {
+        console.log("Risposta dal server:", res.data);
+        setCards(cards.filter((card) => card.id !== id));
+      })
+      .catch((error) => {
+        console.error("Errore durante l'eliminazione:", error);
+      });
   };
-  useEffect(() => {
-    axios.get("http://127.0.0.1:3000/posts").then((res) => {
-      console.log(res.data);
-      setPosts(res.data);
-    });
-  }, []);
-  const [posts, setPosts] = useState([]); // Stato per memorizzare i post
+
   return (
     <>
       {/* <Header/> */}
@@ -81,7 +103,7 @@ function App() {
               <div>Titolo: {card.title}</div>
               <div>Autore: {card.author}</div>
               <div>Stato: {card.status ? "Pubblicato" : "Non pubblicato"}</div>
-              <span onClick={handleRemoveClick}>X</span>
+              <span onClick={deleteItem}>X</span>
             </li>
           ))}
         </ul>
@@ -102,8 +124,8 @@ function App() {
           </div>
         </div>
       </section> */}
+      <Card></Card>
     </>
   );
 }
-
 export default App;
